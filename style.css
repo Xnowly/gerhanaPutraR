@@ -1,0 +1,396 @@
+:root {
+    --bg-dark: #020306;
+    --panel-bg: rgba(8, 12, 24, 0.7);
+    --panel-border: rgba(255, 255, 255, 0.08);
+    --text-primary: #f0f3f8;
+    --text-secondary: #9aa5b8;
+    --accent-blue: #00d2ff;
+    --accent-orange: #ff9100;
+    --glass-blur: blur(16px);
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Inter', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+    font-family: var(--font-body);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* WebGL Canvas fills screen */
+#canvas-container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+/* UI Overlay Layer */
+.ui-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none; /* Mouse clicks pass through to Three.js canvas */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 24px;
+}
+
+.ui-overlay * {
+    pointer-events: auto; /* Re-enable pointer events for UI elements */
+}
+
+/* Clean Header */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--panel-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--panel-border);
+    padding: 10px 20px;
+    border-radius: 12px;
+    align-self: flex-start;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    min-width: 250px;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.eclipse-logo-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: transparent;
+    box-shadow: -4px 3px 0 0 var(--accent-orange);
+    position: relative;
+}
+
+.eclipse-logo-icon::after {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    top: -1px;
+    left: -5px;
+}
+
+.logo-area h1 {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    background: linear-gradient(90deg, #ffffff, var(--accent-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.logo-area p {
+    font-size: 0.7rem;
+    color: var(--accent-blue);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-top: -2px;
+}
+
+.header-info {
+    font-size: 0.8rem;
+}
+
+.coverage-badge {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+#sun-coverage {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+/* Floating Media Toolbar (Bottom) */
+.floating-toolbar {
+    background: var(--panel-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--panel-border);
+    border-radius: 40px;
+    padding: 12px 24px;
+    width: 90%;
+    max-width: 780px;
+    align-self: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+}
+
+.toolbar-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+
+/* Toolbar Buttons */
+.toolbar-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.toolbar-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.play-btn {
+    background: linear-gradient(135deg, var(--accent-orange), #ff6200);
+    border: none;
+    box-shadow: 0 4px 12px rgba(255, 145, 0, 0.2);
+}
+
+.play-btn:hover {
+    box-shadow: 0 4px 16px rgba(255, 145, 0, 0.35);
+}
+
+.toolbar-btn:active {
+    transform: scale(0.95);
+}
+
+/* Slider Container */
+.slider-container {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+}
+
+.timeline-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.12);
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.timeline-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8), 0 0 4px var(--accent-orange);
+    border: 2.5px solid var(--accent-orange);
+    transition: transform 0.15s;
+}
+
+.timeline-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.3);
+}
+
+/* Selector dropdown */
+.toolbar-select {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.toolbar-select:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: var(--accent-blue);
+}
+
+.toolbar-select option {
+    background: #0d1222;
+    color: #ffffff;
+}
+
+/* Toggle Switcher */
+.toggle-container {
+    display: flex;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 3px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.toggle-btn {
+    border: none;
+    background: transparent;
+    padding: 6px 14px;
+    border-radius: 17px;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.toggle-btn.active {
+    background: linear-gradient(135deg, var(--accent-blue), #0084ff);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 210, 255, 0.25);
+}
+
+/* Floating Help Button */
+.help-btn {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--panel-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--panel-border);
+    color: var(--text-primary);
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: all 0.2s;
+}
+
+.help-btn:hover {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+    transform: scale(1.08);
+}
+
+/* Modal styling */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: #0d1222;
+    border: 1px solid var(--panel-border);
+    padding: 24px 30px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 440px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    position: relative;
+}
+
+.close-modal {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    color: var(--text-secondary);
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-modal:hover {
+    color: #ffffff;
+}
+
+.modal h2 {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    border-bottom: 1.5px solid var(--accent-blue);
+    padding-bottom: 8px;
+}
+
+.modal-body h3 {
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    margin: 12px 0 6px 0;
+    color: var(--accent-blue);
+}
+
+.modal-body ul {
+    padding-left: 20px;
+    margin-bottom: 12px;
+}
+
+.modal-body li {
+    font-size: 0.8rem;
+    line-height: 1.45;
+    margin-bottom: 4px;
+    color: var(--text-secondary);
+}
+
+.modal-body strong {
+    color: #ffffff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .floating-toolbar {
+        border-radius: 20px;
+        padding: 10px;
+    }
+    .toolbar-row {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+    .slider-container {
+        width: 100%;
+        order: -1; /* Place slider at top */
+        margin-bottom: 4px;
+    }
+}
